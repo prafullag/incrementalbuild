@@ -1,6 +1,8 @@
 package com.incrementalbuild;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -12,6 +14,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -63,7 +66,7 @@ public class MavenExecutor {
 		XPath xpath = xPathfactory.newXPath();
 		String artifactId = xpath.compile("/project/artifactId").evaluate(document);
 		String version = xpath.compile("/project/version").evaluate(document);
-		System.out.println("sdfsdasdfds  ***" + version);
+		
 		if(StringUtils.isEmpty(version)){
 			version = xpath.compile("/project/parent/version").evaluate(document);
 		}
@@ -73,7 +76,6 @@ public class MavenExecutor {
 				version = xpath.compile(versionExp).evaluate(document);
 			}else{
 				String parentPom = xpath.compile("/project/parent/relativePath").evaluate(document);
-				System.out.println("sdfsda  ***" + pomFilePath + "/" + parentPom);
 				File parentPomFile = new File(pomFilePath + "/" + parentPom);
 				
 				DocumentBuilderFactory dbfParent = DocumentBuilderFactory.newInstance();
@@ -86,9 +88,17 @@ public class MavenExecutor {
 		String jarPath = pomFilePath + "/target/" + artifactId.trim() + "-" + version.trim() + ".jar";
 		
 		for(String copyPath : properties.getCopyPaths().split(",")){
-			System.out.println("Copying " + jarPath + " to " + copyPath);
-			
-			Runtime.getRuntime().exec("cp " + jarPath + " " + copyPath);
+			System.out.println("Copying " + jarPath + " to " + copyPath); 
+			//copy only if file exists so that we are copying to libs who are using that jar
+			if(Files.exists(Paths.get(copyPath, artifactId.trim() + "-" + version.trim() + ".jar"))){
+				if(SystemUtils.IS_OS_WINDOWS){
+					jarPath = jarPath.replaceAll("/", "\\\\");
+					copyPath = copyPath.replaceAll("/", "\\\\");
+					Runtime.getRuntime().exec("copy /Y " + jarPath + " " + copyPath);
+				}else{
+					Runtime.getRuntime().exec("cp " + jarPath + " " + copyPath);
+				}
+			}
 		}
 	}
 
@@ -135,7 +145,5 @@ public class MavenExecutor {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		MavenExecutor me = new MavenExecutor(null);
-		me.copyJarFiles("/Users/prafulla.gupta/Code/private/trunk/code/portals/enrollment-portal/enrollment-web/", new File("/Users/prafulla.gupta/Code/private/trunk/code/portals/enrollment-portal/enrollment-web/pom.xml"));
 	}
 }
