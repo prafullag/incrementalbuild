@@ -18,6 +18,8 @@ import org.w3c.dom.NodeList;
  * @goal incremental
  * 
  * @phase compile
+ * 
+ * @author prafulla.gupta
  */
 public class IncrementalBuild extends AbstractMojo {
 	
