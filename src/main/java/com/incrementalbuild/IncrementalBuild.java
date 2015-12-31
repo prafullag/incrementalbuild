@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -63,6 +64,16 @@ public class IncrementalBuild extends AbstractMojo {
      * @parameter
      */
 	private Boolean offline;
+	
+	/**
+     * @parameter
+     */
+	private String mavenHome;
+	
+	/**
+     * @parameter
+     */
+	private String javaHome;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("Starting Incremental Build");
@@ -111,6 +122,8 @@ public class IncrementalBuild extends AbstractMojo {
 		buildProps.setCopyPaths(this.copyPaths);
 		buildProps.setModulePomFile(this.modulePomFile);
 		buildProps.setIsOffline(this.offline);
+		buildProps.setMavenHome(StringUtils.isNotEmpty(this.mavenHome) ? this.mavenHome : System.getenv("MAVEN_HOME"));
+		buildProps.setJavaHome(StringUtils.isNotEmpty(this.javaHome) ? this.javaHome : System.getenv("JAVA_HOME"));
 		return buildProps;
 	}
 

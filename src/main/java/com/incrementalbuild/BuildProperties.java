@@ -18,6 +18,10 @@ public class BuildProperties {
 	private String modulePomFile;
 	
 	private Boolean isOffline;
+	
+	private String mavenHome;
+	
+	private String javaHome;
 
 	public String getCopyPaths() {
 		return copyPaths;
@@ -65,5 +69,21 @@ public class BuildProperties {
 
 	public void setIsOffline(Boolean isOffline) {
 		this.isOffline = isOffline;
+	}
+
+	public String getMavenHome() {
+		return mavenHome;
+	}
+
+	public void setMavenHome(String mavenHome) {
+		this.mavenHome = mavenHome;
+	}
+
+	public String getJavaHome() {
+		return javaHome;
+	}
+
+	public void setJavaHome(String javaHome) {
+		this.javaHome = javaHome;
 	}
 }

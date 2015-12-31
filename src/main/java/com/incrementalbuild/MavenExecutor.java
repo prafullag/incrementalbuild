@@ -38,10 +38,10 @@ public class MavenExecutor {
 		System.out.println("Executing maven for : " + pomFilePath);
 		
 		InvocationRequest request = new DefaultInvocationRequest();
-		request.setJavaHome(new File(System.getenv("JAVA_HOME")));
+		request.setJavaHome(new File(this.properties.getJavaHome()));
 		
 		Invoker invoker = new DefaultInvoker();
-		invoker.setMavenHome(new File(System.getenv("MAVEN_HOME")));
+		invoker.setMavenHome(new File(this.properties.getMavenHome()));
 		request.setOffline(BooleanUtils.isTrue(properties.getIsOffline()));
 		
 		File pomFile = setPom(pomFilePath, request);
@@ -87,15 +87,16 @@ public class MavenExecutor {
 		
 		String jarPath = pomFilePath + "/target/" + artifactId.trim() + "-" + version.trim() + ".jar";
 		
-		for(String copyPath : properties.getCopyPaths().split(",")){
-			System.out.println("Copying " + jarPath + " to " + copyPath); 
+		for(String copyPath : properties.getCopyPaths().split(",")){ 
 			//copy only if file exists so that we are copying to libs who are using that jar
 			if(Files.exists(Paths.get(copyPath, artifactId.trim() + "-" + version.trim() + ".jar"))){
 				if(SystemUtils.IS_OS_WINDOWS){
 					jarPath = jarPath.replaceAll("/", "\\\\");
 					copyPath = copyPath.replaceAll("/", "\\\\");
-					Runtime.getRuntime().exec("copy /Y " + jarPath + " " + copyPath);
+					System.out.println("Windows copying " + jarPath + " to " + copyPath);
+					Runtime.getRuntime().exec("cmd /C copy /Y " + jarPath + " " + copyPath);
 				}else{
+					System.out.println("Copying " + jarPath + " to " + copyPath);
 					Runtime.getRuntime().exec("cp " + jarPath + " " + copyPath);
 				}
 			}
@@ -142,8 +143,5 @@ public class MavenExecutor {
 			goalsList.add(goal);
 		}
 		request.setGoals(goalsList);
-	}
-	
-	public static void main(String[] args) throws Exception{
 	}
 }
